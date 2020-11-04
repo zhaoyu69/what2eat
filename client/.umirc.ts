@@ -12,7 +12,8 @@ export default defineConfig({
       path: '/manage',
       component: '../layouts/manage/index',
       routes: [
-        { path: '/manage', component: '@/pages/manage/index'} ,
+        { path: '/manage/kinds', component: '@/pages/manage/kinds/index'} ,
+        { path: '/manage/foods', component: '@/pages/manage/foods/index'} ,
       ],
     },
     // 用户端
