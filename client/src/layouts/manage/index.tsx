@@ -1,15 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import styles from './index.less';
 import {Breadcrumb, Layout, Menu} from "antd";
 const { Header, Sider, Content } = Layout;
-import { Link } from 'umi';
+import { Link, withRouter } from 'umi';
 import { menus } from '@/utils/common';
 const breadcrumbs = {
   '/manage/kinds': [{ name: '种类管理' }],
   '/manage/foods': [{ name: '餐品管理' }]
 };
 
-export default function ManageLayout({ children }) {
+function ManageLayout({ children }) {
   const { pathname } = window.location;
   return (
     <Layout className={styles.manageLayout}>
@@ -63,3 +63,5 @@ export default function ManageLayout({ children }) {
     </Layout>
   );
 }
+
+export default withRouter(ManageLayout);

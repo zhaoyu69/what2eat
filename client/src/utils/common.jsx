@@ -14,3 +14,5 @@ export const menus = [
     icon: <CustomIcon type={'food'}/>
   },
 ];
+
+export const upload_action = "http://localhost:3000/upload";
