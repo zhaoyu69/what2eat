@@ -4,9 +4,9 @@ const { parseobj2json } = require('../helpers/parse');
 const { reDataGenerator } = require('../helpers/reData');
 
 router.post('/getKinds', async (req, res) => {
-  const { pageNo, pageSize } = req.body;
-  const list = await KindService.getKinds(pageNo, pageSize).then(parseobj2json);
-  const total = await KindService.getKindsTotal();
+  const { pageNo, pageSize, name } = req.body;
+  const list = await KindService.getKinds({pageNo, pageSize, name}).then(parseobj2json);
+  const total = await KindService.getKindsTotal({name});
   const result = reDataGenerator({
     data: {list, total}
   });

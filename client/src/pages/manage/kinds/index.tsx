@@ -74,11 +74,6 @@ function KindsPage({dispatch, kinds, kindDetail}) {
         </div>
       }
     },
-    // {
-    //   key: 'creator',
-    //   dataIndex: 'creator',
-    //   title: '创建人'
-    // },
     {
       key: 'createdAt',
       dataIndex: 'createdAt',
@@ -155,6 +150,7 @@ function KindsPage({dispatch, kinds, kindDetail}) {
         onOk={handleOk}
         onCancel={handleCancel}
         forceRender
+        maskClosable={false}
       >
         <Form
           {...formItemLayout}
@@ -165,10 +161,10 @@ function KindsPage({dispatch, kinds, kindDetail}) {
             label="名称"
             rules={[{ required: true, message: '请输入名称!' }]}
           >
-            <Input />
+            <Input placeholder={'请输入名称'}/>
           </Form.Item>
           <Form.Item name="description" label="描述">
-            <TextArea autoSize={{ minRows: 3, maxRows: 5 }}/>
+            <TextArea autoSize={{ minRows: 3, maxRows: 5 }} placeholder={'请输入描述'}/>
           </Form.Item>
           <Form.Item
             name="thumb"

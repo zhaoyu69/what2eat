@@ -6,7 +6,8 @@ import { Link, withRouter } from 'umi';
 import { menus } from '@/utils/common';
 const breadcrumbs = {
   '/manage/kinds': [{ name: '种类管理' }],
-  '/manage/foods': [{ name: '餐品管理' }]
+  '/manage/foods': [{ name: '餐品管理' }],
+  '/manage/pools': [{ name: '奖池管理' }],
 };
 
 function ManageLayout({ children }) {

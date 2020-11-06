@@ -14,6 +14,7 @@ export default defineConfig({
       routes: [
         { path: '/manage/kinds', component: '@/pages/manage/kinds/index'} ,
         { path: '/manage/foods', component: '@/pages/manage/foods/index'} ,
+        { path: '/manage/pools', component: '@/pages/manage/pools/index'} ,
       ],
     },
     // 用户端
