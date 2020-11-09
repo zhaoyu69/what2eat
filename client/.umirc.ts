@@ -20,7 +20,6 @@ export default defineConfig({
     // 用户端
     {
       path: '/',
-      component: '../layouts/user/index',
       routes: [
         { path: '/', component: '@/pages/user/index' },
       ]

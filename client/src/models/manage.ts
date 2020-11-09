@@ -252,6 +252,20 @@ const manageModel = {
       }
     },
 
+    *setCurrentPool({ payload }, { put, call, select }) {
+      const { id, isCurrent } = payload;
+      const result = yield call(service.setCurrentPool, {
+        method: 'POST',
+        data: { id, isCurrent }
+      });
+      if(result.code === 0) {
+        yield put({ type: 'getPools' });
+        message.success(`更新成功`);
+      } else {
+        message.error(result.message)
+      }
+    },
+
     *removePool({ payload }, { put, call, select }) {
       const { id } = payload;
       const result = yield call(service.removePool, {

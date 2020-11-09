@@ -1,22 +1,29 @@
 import React, {useEffect, useState} from 'react';
 import styles from './index.less';
 import { connect } from 'dva';
-import {Button, Form, Input, Modal, Pagination, Select, Card, Row, Col} from "antd";
-import {ExclamationCircleOutlined, PlusOutlined} from "@ant-design/icons/lib";
+import {Button, Form, Input, Modal, Pagination, Select, Card, Row, Col, Tag} from "antd";
+import {
+  CheckCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined, MinusCircleOutlined,
+  PlusOutlined
+} from "@ant-design/icons/lib";
 import {IState} from "../../../interface/IState";
 import { formItemLayout } from "@/utils/formLayout";
 const TextArea = Input.TextArea;
 const Option = Select.Option;
 const { Meta } = Card;
 import { grid9Generator } from "@/utils/common";
-import * as moment from 'moment';
+import MultiClamp from 'react-multi-clamp';
+import CustomIcon from "../../../components/CustomIcon";
+import cx from "classnames";
 
 function PoolsPage({dispatch, pools, poolDetail, searchedFoods}) {
   const { pageNo, pageSize, total, data } = pools;
-  const { objectId, name, description } = poolDetail;
+  const { objectId, name, description, foods } = poolDetail;
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
-  console.log(data);
 
   useEffect(() => {
     dispatch({ type: 'manageStore/getPools' });
@@ -32,6 +39,7 @@ function PoolsPage({dispatch, pools, poolDetail, searchedFoods}) {
       form.setFieldsValue({
         name,
         description,
+        foodIds: foods.map(food => food.objectId)
       });
     }
   }, [poolDetail.objectId]);
@@ -44,7 +52,7 @@ function PoolsPage({dispatch, pools, poolDetail, searchedFoods}) {
 
   function removeConfirm(id) {
     Modal.confirm({
-      title: '是否删除该种类?',
+      title: '是否删除该奖池?',
       icon: <ExclamationCircleOutlined />,
       content: '',
       okText: '确认',
@@ -85,6 +93,23 @@ function PoolsPage({dispatch, pools, poolDetail, searchedFoods}) {
 
   function searchFoods(name='') {
     dispatch({ type: 'manageStore/searchFoods', payload: { name } });
+  }
+
+  function setCurrentConfirm(id) {
+    Modal.confirm({
+      title: '是否激活该奖池?',
+      icon: <ExclamationCircleOutlined />,
+      content: '',
+      okText: '确认',
+      cancelText: '取消',
+      onOk() {
+        dispatch({
+          type: 'manageStore/setCurrentPool',
+          payload: { id, isCurrent: true }
+        });
+      },
+      onCancel() {},
+    });
   }
 
   return (
@@ -150,8 +175,8 @@ function PoolsPage({dispatch, pools, poolDetail, searchedFoods}) {
             <div className={styles.list}>
               {
                 data.map((item, idx) => {
-                  const isRowLast = idx % 4 === 0;
-                  const { objectId, name, description, foods, createdAt } = item;
+                  const isRowLast = (idx + 1) % 5 === 0;
+                  const { objectId, name, description, foods, createdAt, isCurrent } = item;
                   return <div className={styles.item} key={objectId}>
                     <div className={styles.itemInner} style={{ marginRight: !isRowLast ? '10px' : ''}}>
                       <Card
@@ -159,6 +184,14 @@ function PoolsPage({dispatch, pools, poolDetail, searchedFoods}) {
                         cover={<div className={styles.cover}>
                           {
                             grid9Generator(foods).map(food => {
+                              if(!food) {
+                                return <div className={cx(styles.smallFood, styles.noFood)}>
+                                  <div className={styles.thumb}>
+                                    <CustomIcon type={"empty"} style={{ color:"rgba(59, 59, 59, 0.3)" }}/>
+                                  </div>
+                                  <div className={styles.name} style={{color:"rgba(59, 59, 59, 0.3)"}}>未设置</div>
+                                </div>
+                              }
                               return <div className={styles.smallFood}>
                                 <div className={styles.thumb}>
                                   { food?.thumbUrl ? <img src={food.thumbUrl} alt=""/> : <div className={styles.noThumb}/>}
@@ -170,8 +203,38 @@ function PoolsPage({dispatch, pools, poolDetail, searchedFoods}) {
                             })
                           }
                         </div>}
+                        actions={[
+                          <EditOutlined onClick={e => edit(objectId)}/>,
+                          <DeleteOutlined onClick={e => removeConfirm(objectId)}/>,
+                        ]}
                       >
-                        <Meta title={name} description={description} />
+                        <Meta
+                          title={
+                            <div className={styles.metaTitle}>
+                              <div className={styles.metaTitleName}>
+                                <span title={description}>
+                                  <MultiClamp ellipsis="..." clamp={1}>
+                                    {name}
+                                  </MultiClamp>
+                                </span>
+                              </div>
+                              <div className={styles.metaTitleTag}>
+                                {
+                                  isCurrent ?
+                                    <Tag color="#87d068">当前</Tag> :
+                                    <Tag color="#ccc" style={{ cursor: 'pointer' }} onClick={e => setCurrentConfirm(objectId)}>往期</Tag>
+                                }
+                              </div>
+                            </div>
+                          }
+                          description={
+                            <span title={description}>
+                              <MultiClamp ellipsis="..." clamp={1}>
+                                {description}
+                              </MultiClamp>
+                            </span>
+                          }
+                        />
                       </Card>
                     </div>
                   </div>

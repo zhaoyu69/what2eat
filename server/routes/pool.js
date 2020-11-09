@@ -20,6 +20,14 @@ router.post('/updatePool', async (req, res) => {
   });
   res.send(result);
 });
+router.post('/setCurrentPool', async (req, res) => {
+  const { id, isCurrent } = req.body;
+  const data = await PoolService.setCurrentPool(id, isCurrent).then(parseobj2json);
+  const result = reDataGenerator({
+    data
+  });
+  res.send(result);
+});
 router.post('/getPoolDetail', async (req, res) => {
   const { id } = req.body;
   const data = await PoolService.getPoolDetail(id).then(parseobj2json);
@@ -31,6 +39,13 @@ router.post('/getPoolDetail', async (req, res) => {
 router.post('/removePool', async (req, res) => {
   const { id } = req.body;
   const data = await PoolService.removePool(id).then(parseobj2json);
+  const result = reDataGenerator({
+    data
+  });
+  res.send(result);
+});
+router.post('/getCurrentPool', async (req, res) => {
+  const data = await PoolService.getCurrentPool().then(parseobj2json);
   const result = reDataGenerator({
     data
   });

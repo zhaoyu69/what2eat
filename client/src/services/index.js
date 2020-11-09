@@ -56,3 +56,11 @@ export function updatePool(opt) {
 export function removePool(opt) {
   return request('/api/pool/removePool', { ...opt });
 }
+
+export function setCurrentPool(opt) {
+  return request('/api/pool/setCurrentPool', { ...opt });
+}
+
+export function getCurrentPool(opt) {
+  return request('/api/pool/getCurrentPool', { ...opt });
+}
