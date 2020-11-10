@@ -12,7 +12,7 @@ const Option = Select.Option;
 
 function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
   const { pageNo, pageSize, total, data } = foods;
-  const { objectId, name, description, thumbUrl } = foodDetail;
+  const { objectId, name, description, thumbUrl, kind, price } = foodDetail;
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
@@ -28,14 +28,16 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
 
   useEffect(() => {
     if(foodDetail.objectId) {
-      let thumb = [{
+      let thumb = thumbUrl ? [{
         uid: Math.random(),
         url: thumbUrl
-      }];
+      }] : [];
       form.setFieldsValue({
         name,
         description,
-        thumb
+        thumb,
+        kindId: kind?.objectId,
+        price
       });
       setFileList(thumb)
     }
@@ -125,7 +127,7 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
       .validateFields()
       .then(values => {
         const thumb = values.thumb;
-        values.thumbUrl = thumb[0]?.response?.files[0]?.url || thumb[0]?.url;
+        values.thumbUrl = thumb ? thumb[0]?.response?.files[0]?.url || thumb[0]?.url : '';
         values.id = objectId;
         dispatch({
           type: 'manageStore/updateFood',

@@ -27,10 +27,10 @@ function KindsPage({dispatch, kinds, kindDetail}) {
 
   useEffect(() => {
     if(kindDetail.objectId) {
-      let thumb = [{
+      let thumb = thumbUrl ? [{
         uid: Math.random(),
         url: thumbUrl
-      }];
+      }] : [];
       form.setFieldsValue({
         name,
         description,
@@ -101,7 +101,7 @@ function KindsPage({dispatch, kinds, kindDetail}) {
       .validateFields()
       .then(values => {
         const thumb = values.thumb;
-        values.thumbUrl = thumb[0]?.response?.files[0]?.url || thumb[0]?.url;
+        values.thumbUrl = thumb ? thumb[0]?.response?.files[0]?.url || thumb[0]?.url : '';
         values.id = objectId;
         dispatch({
           type: 'manageStore/updateKind',

@@ -23,9 +23,9 @@ function getPoolsTotal() {
   return query.count();
 }
 
-function updatePool(id, name, description, foodIds) {
+function updatePool(id, name, description, foodIds=[]) {
   const poolObj = id ? PoolObj.createWithoutData(id) : new PoolObj();
-  const parseFoods = foodIds.map(foodId => FoodObj.createWithoutData(foodId));
+  const parseFoods = foodIds.length ? foodIds.map(foodId => FoodObj.createWithoutData(foodId)) : [];
   poolObj.set('foods', parseFoods);
   poolObj.set('name', name);
   poolObj.set('description', description);

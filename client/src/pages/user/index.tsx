@@ -7,9 +7,6 @@ import {PauseCircleOutlined, PlayCircleOutlined} from "@ant-design/icons/lib";
 import CustomIcon from "../../components/CustomIcon";
 
 function IndexPage({ dispatch, currentPool }) {
-  if(!currentPool) {
-    return null;
-  }
   const timers = useRef({});
   const [key, setKey] = useState(-1);
   const [isStart, setIsStart] = useState(false);
@@ -83,7 +80,7 @@ function IndexPage({ dispatch, currentPool }) {
     <div className={styles.indexPage}>
       <div className={styles.main}>
         <div className={styles.title}>
-          { currentPool?.name }
+          { currentPool?.name ?? '当前暂无抽奖' }
         </div>
         <div className={styles.grids}>
           { grid9Generator(currentPool && currentPool.foods || []).map((food, idx) => {
@@ -100,8 +97,8 @@ function IndexPage({ dispatch, currentPool }) {
         </div>
         <div className={styles.control}>
           {
-            !isStart ? <Button type={"primary"} icon={<PlayCircleOutlined />} onClick={start}>开始</Button> :
-              <Button type={"primary"} icon={<PauseCircleOutlined />} onClick={stop}>结束</Button>
+            !isStart ? <Button type={"primary"} icon={<PlayCircleOutlined />} onClick={start} disabled={!currentPool}>开始</Button> :
+              <Button type={"primary"} icon={<PauseCircleOutlined />} onClick={stop} disabled={!currentPool}>结束</Button>
           }
         </div>
       </div>
