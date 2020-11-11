@@ -21,7 +21,7 @@ export default defineConfig({
     {
       path: '/',
       routes: [
-        { path: '/', component: '@/pages/user/index' },
+        { path: '/', component: '@/pages/user/index/index' },
       ]
     },
   ],
