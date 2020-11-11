@@ -57,7 +57,7 @@ export default function Scratch({ currentPool }) {
       ctx.fillRect(0,0, contentRef.current?.offsetWidth, contentRef.current?.offsetHeight);
       ctx.globalCompositeOperation = 'destination-out';
     }
-  }
+  } 
 
   function fillCircle(x, y) {
     const ctx = canvasRef.current?.getContext("2d");
@@ -109,6 +109,7 @@ export default function Scratch({ currentPool }) {
   function reset() {
     if(!shakeTimer.current) {
       initCanvas();
+      setPercent(0);
       setKey(randomKey());
       setIsShake(true);
       shakeTimer.current = setTimeout(() => {
