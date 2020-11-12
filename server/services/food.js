@@ -3,34 +3,48 @@ const FoodObj = Parse.Object.extend("Food");
 const KindObj = Parse.Object.extend("Kind");
 const { skipCount } = require('../helpers/parse');
 
+function queryWith(query, condition) {
+  const { name, kindIds=[], minPrice, maxPrice, sorter } = condition;
+  if(name) {
+    query.contains('name', name);
+  }
+  if(kindIds.length) {
+    query.containedIn('kind', kindIds.map(kindId => KindObj.createWithoutData(kindId)));
+  }
+  if(minPrice) {
+    query.greaterThanOrEqualTo('price', minPrice);
+  }
+  if(maxPrice) {
+    query.lessThanOrEqualTo('price', maxPrice);
+  }
+  if(sorter && sorter.order) {
+    const { field, order } = sorter;
+    query[`${order}ing`](`${field}`);
+  } else {
+    query.descending("updatedAt");
+  }
+  return query;
+}
+
 function getFoods(condition) {
-  const {pageNo, pageSize, name} = condition;
+  const {pageNo, pageSize} = condition;
   const query = new Parse.Query(FoodObj);
   query.notEqualTo('isDeleted', true);
   if(pageNo && pageSize) {
-    // 分页查询
     query.skip(skipCount(pageNo, pageSize));
     query.limit(pageSize);
   } else {
-    // 全量查询
     query.limit(99999);
   }
-  if(name) {
-    // 名称模糊查询
-    query.fullText('name', name);
-  }
+  queryWith(query, condition);
   query.include(['kind']);
   return query.find();
 }
 
 function getFoodsTotal(condition) {
-  const { name } = condition;
   const query = new Parse.Query(FoodObj);
   query.notEqualTo('isDeleted', true);
-  if(name) {
-    // 名称模糊查询
-    query.fullText('name', name);
-  }
+  queryWith(query, condition);
   return query.count();
 }
 

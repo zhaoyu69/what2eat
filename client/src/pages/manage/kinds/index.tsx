@@ -8,6 +8,7 @@ import { formItemLayout } from "@/utils/formLayout";
 import { upload_action } from '@/utils/common';
 const TextArea = Input.TextArea;
 import * as moment from 'moment';
+import SearchBar from "../../../components/SearchBar";
 
 function KindsPage({dispatch, kinds, kindDetail}) {
   const { pageNo, pageSize, total, data } = kinds;
@@ -78,13 +79,16 @@ function KindsPage({dispatch, kinds, kindDetail}) {
       key: 'createdAt',
       dataIndex: 'createdAt',
       title: '创建时间',
+      align: 'center',
       width: 200,
+      sorter: true,
       render: (createdAt) => moment(createdAt).format('YYYY/MM/DD HH:mm:ss')
     },
     {
       key: 'action',
       dataIndex: 'action',
       title: '操作',
+      align: 'center',
       width: 100,
       render: (action, record) => {
         const { objectId } = record;
@@ -141,8 +145,36 @@ function KindsPage({dispatch, kinds, kindDetail}) {
     setFileList(fileList);
   }
 
+  function handleSearch(values) {
+    dispatch({ type: 'manageStore/saveSearch', payload: { type: 'kinds', ...values }});
+    dispatch({ type: 'manageStore/getKinds' });
+  }
+
+  function handleClear() {
+    dispatch({ type: 'manageStore/resetSearch', payload: { type: 'kinds' }});
+    dispatch({ type: 'manageStore/getKinds' });
+  }
+
+  function tableChange(pagination, filters, sorter) {
+    dispatch({ type: 'manageStore/saveSearch', payload: { type: 'kinds', sorter }});
+    dispatch({ type: 'manageStore/getKinds' });
+  }
+
   return (
     <div className={styles.kindsContainer}>
+      <SearchBar
+        formItems={[
+          {
+            props: {
+              name: 'name',
+              label: '名称',
+            },
+            children: <Input placeholder="输入种类名称" allowClear/>
+          }
+        ]}
+        onSearch={handleSearch}
+        onClear={handleClear}
+      />
       <Button type="dashed" className={styles.btnAdd} icon={<PlusOutlined />} onClick={e => setVisible(true)}>添加</Button>
       <Modal
         title="种类添加"
@@ -192,6 +224,7 @@ function KindsPage({dispatch, kinds, kindDetail}) {
       <Table
         columns={columns}
         dataSource={data}
+        onChange={tableChange}
         pagination={{
           total,
           current: pageNo,

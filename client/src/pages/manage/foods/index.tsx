@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import styles from './index.less';
 import { connect } from 'dva';
-import {Button, Form, Input, InputNumber, Modal, Select, Table, Upload} from "antd";
+import {Button, Form, Input, InputNumber, message, Modal, Select, Table, Upload} from "antd";
 import {ExclamationCircleOutlined, PlusOutlined, UploadOutlined} from "@ant-design/icons/lib";
 import {IState} from "../../../interface/IState";
 import { formItemLayout } from "@/utils/formLayout";
 import { upload_action } from '@/utils/common';
 const TextArea = Input.TextArea;
 import * as moment from 'moment';
+import SearchBar from "../../../components/SearchBar";
 const Option = Select.Option;
 
 function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
@@ -19,6 +20,7 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
 
   useEffect(() => {
     dispatch({ type: 'manageStore/getFoods' });
+    searchKinds();
   }, []);
 
   function edit(objectId) {
@@ -42,12 +44,6 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
       setFileList(thumb)
     }
   }, [foodDetail.objectId]);
-
-  useEffect(() => {
-    if(visible) {
-      searchKinds();
-    }
-  }, [visible]);
 
   function removeConfirm(id) {
     Modal.confirm({
@@ -89,6 +85,7 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
       title: '种类',
       width: 150,
       align: 'center',
+      sorter: true,
       render: (kind) => kind.name
     },
     {
@@ -97,6 +94,7 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
       title: '人均',
       width: 100,
       align: 'center',
+      sorter: true,
     },
     {
       key: 'createdAt',
@@ -104,6 +102,7 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
       title: '创建时间',
       width: 200,
       align: 'center',
+      sorter: true,
       render: (createdAt) => moment(createdAt).format('YYYY/MM/DD HH:mm:ss')
     },
     {
@@ -168,12 +167,78 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
     setFileList(fileList);
   }
 
-  function searchKinds(name='') {
-    dispatch({ type: 'manageStore/searchKinds', payload: { name } });
+  function searchKinds() {
+    dispatch({ type: 'manageStore/searchKinds' });
+  }
+
+  function handleSearch(values) {
+    if(typeof values.minPrice === "number" && typeof values.maxPrice === "number") {
+      if(values.minPrice > values.maxPrice) {
+        message.error('人均最小值应小于等于人均最大值');
+        return ;
+      }
+    }
+    dispatch({ type: 'manageStore/saveSearch', payload: { type: 'foods', ...values }});
+    dispatch({ type: 'manageStore/getFoods' });
+  }
+
+  function handleClear() {
+    dispatch({ type: 'manageStore/resetSearch', payload: { type: 'foods' }});
+    dispatch({ type: 'manageStore/getFoods' });
+  }
+
+  function tableChange(pagination, filters, sorter) {
+    dispatch({ type: 'manageStore/saveSearch', payload: { type: 'foods', sorter }});
+    dispatch({ type: 'manageStore/getFoods' });
   }
 
   return (
     <div className={styles.foodsContainer}>
+      <SearchBar
+        formItems={[
+          {
+            props: {
+              name: 'name',
+              label: '名称',
+            },
+            children: <Input placeholder="输入餐品名称" allowClear/>
+          },
+          {
+            props: {
+              name: 'kindIds',
+              label: '种类'
+            },
+            children: <Select
+              mode="multiple"
+              placeholder={'选择种类（可选多个）'}
+              allowClear
+            >
+              {
+                searchedKinds.map(kind => {
+                  const { objectId, name } = kind;
+                  return <Option key={objectId}>{name}</Option>
+                })
+              }
+            </Select>
+          },
+          {
+            props: {
+              label: '人均',
+            },
+            children: <div className={styles.priceSearch}>
+              <Form.Item name={'minPrice'} style={{ width: '100%' }}>
+                <InputNumber placeholder="输入人均最小值" style={{ width: '100%' }}/>
+              </Form.Item>
+              <div className={styles.split}>-</div>
+              <Form.Item name={'maxPrice'} style={{ width: '100%' }}>
+                <InputNumber placeholder="输入人均最大值" style={{ width: '100%' }}/>
+              </Form.Item>
+            </div>
+          },
+        ]}
+        onSearch={handleSearch}
+        onClear={handleClear}
+      />
       <Button type="dashed" className={styles.btnAdd} icon={<PlusOutlined />} onClick={e => setVisible(true)}>添加</Button>
       <Modal
         title="餐品添加"
@@ -246,6 +311,7 @@ function FoodsPage({dispatch, foods, foodDetail, searchedKinds}) {
       <Table
         columns={columns}
         dataSource={data}
+        onChange={tableChange}
         pagination={{
           total,
           current: pageNo,

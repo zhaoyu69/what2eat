@@ -3,7 +3,26 @@ const PoolObj = Parse.Object.extend("Pool");
 const FoodObj = Parse.Object.extend("Food");
 const { skipCount } = require('../helpers/parse');
 
-function getPools(condition={}) {
+function queryWith(query, condition) {
+  const { name, foodIds=[], isCurrent, sorter } = condition;
+  if(name) {
+    query.contains('name', name);
+  }
+  if(foodIds.length) {
+    query.containedIn('foods', foodIds.map(foodId => FoodObj.createWithoutData(foodId)));
+  }
+  if(typeof isCurrent === 'boolean') {
+    query.equalTo('isCurrent', isCurrent);
+  }
+  if(sorter && sorter.order) {
+    const { field, order } = sorter;
+    query[`${order}ing`](`${field}`);
+  } else {
+    query.descending("updatedAt");
+  }
+}
+
+function getPools(condition) {
   const { pageNo, pageSize } = condition;
   const query = new Parse.Query(PoolObj);
   query.notEqualTo('isDeleted', true);
@@ -13,13 +32,15 @@ function getPools(condition={}) {
   } else {
     query.limit(99999);
   }
+  queryWith(query, condition);
   query.include(['foods', 'foods.kind']);
   return query.find();
 }
 
-function getPoolsTotal() {
+function getPoolsTotal(condition) {
   const query = new Parse.Query(PoolObj);
   query.notEqualTo('isDeleted', true);
+  queryWith(query, condition);
   return query.count();
 }
 

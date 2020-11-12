@@ -1,5 +1,24 @@
 import * as service from '../services/index';
 import {message} from "antd";
+const defaultSearch = {
+  kinds: {
+    name: '',
+    sorter: undefined
+  },
+  foods: {
+    name: '',
+    kindIds: [],
+    minPrice: undefined,
+    maxPrice: undefined,
+    sorter: undefined
+  },
+  pools: {
+    name: '',
+    foodIds: [],
+    isCurrent: undefined,
+    sorter: undefined
+  },
+};
 
 const manageModel = {
   namespace: 'manageStore',
@@ -9,6 +28,7 @@ const manageModel = {
       pageSize: 10,
       data: [],
       total: 0,
+      search: defaultSearch['kinds']
     },
     kindDetail: {},
     foods: {
@@ -16,6 +36,7 @@ const manageModel = {
       pageSize: 10,
       data: [],
       total: 0,
+      search: defaultSearch['foods']
     },
     searchedKinds: [],
     foodDetail: {},
@@ -24,6 +45,7 @@ const manageModel = {
       pageSize: 10,
       data: [],
       total: 0,
+      search: defaultSearch['pools']
     },
     searchedFoods: [],
     poolDetail: {},
@@ -31,10 +53,10 @@ const manageModel = {
   effects: {
     *getKinds({  }, { put, call, select }) {
       const { kinds } = yield select(state => state.manageStore);
-      const { pageNo, pageSize } = kinds;
+      const { pageNo, pageSize, search } = kinds;
       const result = yield call(service.getKinds, {
         method: 'POST',
-        data: { pageNo, pageSize }
+        data: { pageNo, pageSize, ...search }
       });
       if(result.code === 0) {
         yield put({
@@ -97,10 +119,8 @@ const manageModel = {
     },
 
     *searchKinds({ payload }, { put, call, select }) {
-      const { name } = payload;
       const result = yield call(service.getKinds, {
         method: 'POST',
-        data: { name }
       });
       if(result.code === 0) {
         yield put({
@@ -116,10 +136,10 @@ const manageModel = {
 
     *getFoods({  }, { put, call, select }) {
       const { foods } = yield select(state => state.manageStore);
-      const { pageNo, pageSize } = foods;
+      const { pageNo, pageSize, search } = foods;
       const result = yield call(service.getFoods, {
         method: 'POST',
-        data: { pageNo, pageSize }
+        data: { pageNo, pageSize, ...search }
       });
       if(result.code === 0) {
         yield put({
@@ -201,10 +221,10 @@ const manageModel = {
 
     *getPools({  }, { put, call, select }) {
       const { pools } = yield select(state => state.manageStore);
-      const { pageNo, pageSize } = pools;
+      const { pageNo, pageSize, search } = pools;
       const result = yield call(service.getPools, {
         method: 'POST',
-        data: { pageNo, pageSize }
+        data: { pageNo, pageSize, ...search }
       });
       if(result.code === 0) {
         yield put({
@@ -305,6 +325,36 @@ const manageModel = {
       };
       return { ...state, pools };
     },
+    saveSearch(state, action) {
+      const {type} = action.payload;
+      delete action.payload.type;
+      const search = {
+        ...state[`${type}`]['search'],
+        ...action.payload
+      };
+      const data = {
+        ...state[`${type}`],
+        search
+      };
+      const result = { ...state };
+      result[`${type}`] = data;
+      return result;
+    },
+    resetSearch(state, action) {
+      const {type} = action.payload;
+      delete action.payload.type;
+      const search = {
+        ...state[`${type}`]['search'],
+        ...defaultSearch[`${type}`]
+      };
+      const data = {
+        ...state[`${type}`],
+        search
+      };
+      const result = { ...state };
+      result[`${type}`] = data;
+      return result;
+    }
   }
 };
 

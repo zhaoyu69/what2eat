@@ -4,9 +4,8 @@ const { parseobj2json } = require('../helpers/parse');
 const { reDataGenerator } = require('../helpers/reData');
 
 router.post('/getFoods', async (req, res) => {
-  const { pageNo, pageSize, name } = req.body;
-  const list = await FoodService.getFoods({pageNo, pageSize, name}).then(parseobj2json);
-  const total = await FoodService.getFoodsTotal({name});
+  const list = await FoodService.getFoods(req.body).then(parseobj2json);
+  const total = await FoodService.getFoodsTotal(req.body);
   const result = reDataGenerator({
     data: {list, total}
   });

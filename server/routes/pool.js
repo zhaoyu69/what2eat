@@ -4,9 +4,8 @@ const { parseobj2json } = require('../helpers/parse');
 const { reDataGenerator } = require('../helpers/reData');
 
 router.post('/getPools', async (req, res) => {
-  const { pageNo, pageSize } = req.body;
-  const list = await PoolService.getPools({pageNo, pageSize}).then(parseobj2json);
-  const total = await PoolService.getPoolsTotal();
+  const list = await PoolService.getPools(req.body).then(parseobj2json);
+  const total = await PoolService.getPoolsTotal(req.body);
   const result = reDataGenerator({
     data: {list, total}
   });
